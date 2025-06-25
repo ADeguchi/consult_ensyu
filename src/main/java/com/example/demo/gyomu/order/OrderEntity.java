@@ -13,7 +13,8 @@ public class OrderEntity {
 	private int orderShitenId;
 	private List<OrderEntity> orderList = new ArrayList<>();
 
-	public OrderEntity() {}
+	public OrderEntity() {
+	}
 
 	public int getOrderId() {
 		return orderId;
@@ -54,7 +55,7 @@ public class OrderEntity {
 	public void setOrderAmount(Integer orderAmount) {
 		this.orderAmount = orderAmount;
 	}
-	
+
 	public int getOrderShitenId() {
 		return orderShitenId;
 	}
@@ -62,13 +63,12 @@ public class OrderEntity {
 	public void setOrderShitenId(int orderShitenId) {
 		this.orderShitenId = orderShitenId;
 	}
-	
-    public List<OrderEntity> getOrderList() {
-        return orderList;
-    }
 
-    public void setOrderList(List<OrderEntity> orderList) {
-        this.orderList = orderList;
-    }
+	public List<OrderEntity> getOrderList() {
+		return orderList;
+	}
+
+	public void setOrderList(List<OrderEntity> orderList) {
+		this.orderList = orderList;
+	}
 }
-
