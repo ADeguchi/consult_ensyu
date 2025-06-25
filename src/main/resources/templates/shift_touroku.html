@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>シフト登録</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    h1 { color:#ff7f27; margin-top:1rem; text-align:center; }
+    .table thead th { background:#f8f9fa; }
+  </style>
+</head>
+<body class="container">
+
+  <h1>シフト登録</h1>
+
+  <!-- 検索フォーム -->
+  <form method="get" th:action="@{/shift/search}" th:object="${form}" class="row g-3 mb-4">
+    <div class="col-md-4">
+      <label class="form-label">社員</label>
+      <select class="form-select" th:field="*{shainId}">
+        <option value="">--選択してください--</option>
+        <option th:each="e:${shainList}" th:value="${e.key}" th:text="${e.value}"></option>
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">年月</label>
+      <input type="month" class="form-control" th:field="*{shiftYm}">
+    </div>
+    <div class="col-md-4 align-self-end">
+      <button class="btn btn-primary w-100">検索して初期登録</button>
+    </div>
+  </form>
+
+  <!-- メインフォーム（更新ボタン＋テーブルを 1 つの form で包む） -->
+  <form id="detailForm" method="post" th:action="@{/shift/update}" th:object="${shiftListForm}"
+        th:if="${shiftListForm != null and #lists.size(shiftListForm.shiftList) > 0}">
+
+    <!-- 更新 & 戻るボタン（メッセージの上） -->
+	<div class="row g-2 mb-3">
+	  <div class="d-flex justify-content-between px-0">
+	    <input type="hidden" name="shainId" th:value="${form.shainId}">
+	    <input type="hidden" name="shiftYm"  th:value="${form.shiftYm}">
+	    <button type="submit" class="btn btn-success flex-grow-1 me-2">更新</button>
+	    <a class="btn btn-secondary flex-grow-1" th:href="@{/}">メニューに戻る</a>
+	  </div>
+	</div>
+
+    <!-- メッセージ -->
+    <div th:if="${message}" class="alert alert-info" th:text="${message}"></div>
+
+    <!-- 明細テーブル -->
+    <table class="table table-bordered">
+      <thead>
+        <tr><th>日付</th><th>出勤可否</th><th>時間帯</th></tr>
+      </thead>
+      <tbody>
+        <tr th:each="shift, i : *{shiftList}">
+          <td>
+            <input type="hidden" th:field="*{shiftList[__${i.index}__].shiftId}">
+            <input type="hidden" th:field="*{shiftList[__${i.index}__].shiftDate}">
+            <span th:text="${#temporals.format(shift.shiftDate,'yyyy-MM-dd')}"></span>
+          </td>
+          <td>
+            <input type="checkbox" class="form-check-input"
+                   th:field="*{shiftList[__${i.index}__].shiftUm}">
+          </td>
+          <td>
+            <select class="form-select" th:field="*{shiftList[__${i.index}__].amPm}">
+              <option value="">--</option>
+              <option value="1">午前</option>
+              <option value="2">午後</option>
+              <option value="3">終日</option>
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+
+</body>
+</html>
