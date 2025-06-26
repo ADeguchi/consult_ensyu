@@ -45,6 +45,7 @@ public class OrderRepository {
 		String sql = "SELECT * "
 				+ "FROM order_data od JOIN zairyou_m zm ON od.zairyou_id = zm.zairyou_id "
 				+ "WHERE od.order_shiten_id = ? AND od.order_date = ? ORDER BY od.order_date";
+
 		return jdbcTemplate.query(sql, new Object[] { shitenId, orderYmd }, (rs, rowNum) -> {
 			OrderEntity entity = new OrderEntity();
 			entity.setOrderId(rs.getInt("order_id"));
@@ -72,12 +73,22 @@ public class OrderRepository {
 	public void updateOrder(OrderEntity order) {
 		String sql = "UPDATE order_data SET order_date = ?, zairyou_id = ?, order_amount = ?, order_shiten_id = ? " +
 				"WHERE order_id = ?";
+		
 		jdbcTemplate.update(sql,
 				order.getOrderYmd(),
 				order.getZairyouId(),
 				order.getOrderAmount(),
 				order.getOrderShitenId(),
 				order.getOrderId());
+		System.out.println(String.format(
+			    "SQL: %s\nParams: [%s, %s, %s, %s, %s]",
+			    sql,
+				order.getOrderYmd(),
+				order.getZairyouId(),
+				order.getOrderAmount(),
+				order.getOrderShitenId(),
+				order.getOrderId()
+			    ));
 	}
 
 	public void deleteById(int orderId) {
