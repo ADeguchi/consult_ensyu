@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/")
 public class MenuController {
 	@GetMapping("/")
+	public String face() {
+		return "face_auth";
+	}
+	@GetMapping("/menu")
 	public String menu() {
 		return "menu";
 	}
