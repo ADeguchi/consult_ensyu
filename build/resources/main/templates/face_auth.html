@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>顔認証ログイン</title>
+  <script>
+    async function verifyFace() {
+      const imageBlob = await captureImage(); // カメラから画像を取得（※後述）
+      const formData = new FormData();
+      formData.append('file', imageBlob, 'face.png');
+
+      const response = await fetch('http://localhost:8000/api/v1/recognition/recognize', {
+        method: 'POST',
+        headers: {
+          'x-api-key': 'b4ca66d0-af35-4801-b90e-60a49f7bec6a'
+        },
+        body: formData
+      });
+
+	  const result = await response.json();
+	  console.log(result);
+
+	  if (
+	    result.result &&
+	    result.result.length > 0 &&
+	    result.result[0].subjects &&
+	    result.result[0].subjects.length > 0 &&
+	    result.result[0].subjects[0].similarity > 0.9
+	  ) {
+	    const subjectName = result.result[0].subjects[0].subject;
+	    alert(`${subjectName}さん、ようこそ！`);
+	    location.href = '/menu';
+	  } else {
+	    alert('顔認証に失敗しました');
+	  }
+    }
+
+    async function captureImage() {
+      const video = document.querySelector('video');
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0);
+      return await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    }
+
+    async function setupCamera() {
+      const video = document.querySelector('video');
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video.srcObject = stream;
+      video.play();
+    }
+
+    window.onload = setupCamera;
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded shadow-lg w-full max-w-md text-center">
+    <h1 class="text-2xl font-bold mb-4">顔認証ログイン</h1>
+    <video autoplay class="mx-auto w-64 h-48 border"></video>
+    <button onclick="verifyFace()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">顔認証</button>
+  </div>
+</body>
+</html>

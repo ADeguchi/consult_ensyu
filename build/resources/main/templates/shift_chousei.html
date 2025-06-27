@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>シフト調整</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    h1 { color: #ff7f27; margin-top: 1rem; text-align: center; }
+    .table th, .table td { vertical-align: middle; }
+  </style>
+</head>
+<body class="container">
+
+  <h1>シフト調整</h1>
+
+  <!-- 年月検索と操作ボタン -->
+  <form method="get" th:action="@{/shift/chousei}" class="row g-3 mb-4">
+    <div class="col-md-4">
+      <label class="form-label">対象年月</label>
+      <input type="month" class="form-control" name="ym" th:value="${ym}" />
+    </div>
+    <div class="col-md-8 d-flex align-items-end justify-content-start gap-2">
+      <button type="submit" class="btn btn-primary">検索</button>
+      <button type="submit" form="updateForm" class="btn btn-success">更新</button>
+      <a th:href="@{/}" class="btn btn-secondary">メニューに戻る</a>
+    </div>
+  </form>
+
+  <!-- メッセージ表示 -->
+  <div th:if="${message}" class="alert alert-info" th:text="${message}"></div>
+  <div>
+    検索件数: <span th:text="${#lists.size(shiftListForm.shiftList)}">0</span>
+  </div>
+
+  <!-- 明細表示（更新フォーム） -->
+  <form id="updateForm" method="post" th:action="@{/shift/chousei/save}" th:object="${shiftListForm}"
+        th:if="${shiftListForm != null and #lists.size(shiftListForm.shiftList) > 0}">
+	<input type="hidden" name="ym" th:value="${ym}" />
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>日付</th>
+          <th>社員ID</th>
+		  <th>社員名</th>
+          <th>出勤可否</th>
+          <th>時間帯</th>
+          <th>削除</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="shift, stat : *{shiftList}">
+          <td>
+              <input type="hidden" th:field="*{shiftList[__${stat.index}__].shiftDate}" />
+              <span th:text="${#temporals.format(shift.shiftDate, 'yyyy-MM-dd')}"></span>
+          </td>
+          <td>
+            <input type="hidden" th:field="*{shiftList[__${stat.index}__].shiftId}" />
+            <input type="hidden" th:field="*{shiftList[__${stat.index}__].shainId}" />
+            <span th:text="*{shiftList[__${stat.index}__].shainId}"></span>
+          </td>
+          <td>
+            <span th:text="*{shiftList[__${stat.index}__].shainName}"></span>
+          </td>
+          <td>
+            <input type="checkbox" class="form-check-input"
+                   th:field="*{shiftList[__${stat.index}__].shiftUm}" />
+          </td>
+          <td>
+            <select class="form-select" th:field="*{shiftList[__${stat.index}__].amPm}">
+              <option value="">--</option>
+              <option value="1">午前</option>
+              <option value="2">午後</option>
+              <option value="3">終日</option>
+            </select>
+          </td>
+          <td>
+            <input type="checkbox" class="form-check-input"
+                   th:field="*{shiftList[__${stat.index}__].delete}" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+
+</body>
+</html>

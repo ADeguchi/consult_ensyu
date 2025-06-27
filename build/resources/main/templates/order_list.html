@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>発注登録一覧</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+	<script th:inline="javascript">
+		const zairyouList = /*[[${zairyouList}]]*/ {};
+		let rowIndex = /*[[${entity.orderList.size()}]]*/ 0;
+	</script>
+</head>
+
+<body class="container">
+
+	<h1 class="mt-4 mb-4 text-center text-primary">発注登録一覧</h1>
+
+	<!-- 検索フォーム -->
+	<form method="get" th:action="@{/order/search}" class="row g-3 align-items-end mb-4">
+		<div class="col-md-4">
+			<label class="form-label">支店</label>
+			<select class="form-select" name="shitenId" required>
+				<option value="">--選択してください--</option>
+				<option th:each="e : ${shitenList}" th:value="${e.key}" th:text="${e.value}"
+					th:selected="${e.key == shitenId}"></option>
+			</select>
+		</div>
+		<div class="col-md-4">
+			<label class="form-label">発注日</label>
+			<input type="date" class="form-control" name="orderYmd" th:value="${orderYmd}" required>
+		</div>
+		<div class="col-md-4">
+			<button type="submit" class="btn btn-primary">検索</button>
+			<a th:href="@{/}" class="btn btn-secondary">メニューに戻る</a>
+			<button onclick="window.print(); return false;" class="btn btn-outline-secondary">このページを印刷する</button>
+		</div>
+	</form>
+	<!-- メッセージ表示（データがあるときのみ） -->
+	<div th:if="${message}" class="alert alert-warning">
+		<span th:text="${message}"></span>
+	</div>
+
+	<!-- 発注一覧テーブル -->
+	<form method="post" th:action="@{/order/update}" id="orderForm" th:object="${entity}">
+		<input type="hidden" name="shitenId" th:value="${shitenId}" />
+		<input type="hidden" name="orderYmd" th:value="${orderYmd}" />
+
+		<table class="table table-bordered" id="orderTable">
+			<thead>
+				<tr>
+					<th>材料名</th>
+					<th>数量</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="o, iterStat : *{orderList}">
+					<input type="hidden" th:name="'orderList[' + ${iterStat.index} + '].orderId'"
+						th:value="${o.orderId}" />
+					<td>
+						<select th:name="'orderList[' + ${iterStat.index} + '].zairyouId'" class="form-select">
+							<option th:each="z : ${zairyouList}" th:value="${z.key}" th:text="${z.value}"
+								th:selected="${z.key == o.zairyouId}"></option>
+						</select>
+					</td>
+					<td>
+						<input type="number" class="form-control"
+							th:name="'orderList[' + ${iterStat.index} + '].orderAmount'" th:value="${o.orderAmount}" />
+					</td>
+					<td>
+						<button type="submit" formaction="/order/delete" th:name="orderId" th:value="${o.orderId}"
+							class="btn btn-danger btn-sm">削除</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div class="d-flex gap-2 mb-3">
+			<button type="button" class="btn btn-outline-primary" onclick="addRow()">＋ 明細追加</button>
+			<button type="submit" class="btn btn-success">登録・更新</button>
+		</div>
+	</form>
+
+	<!-- 明細追加用JS -->
+	<script>
+		function addRow() {
+			const tbody = document.querySelector("#orderTable tbody");
+			const newRow = document.createElement("tr");
+
+			let options = '<option value="">--選択--</option>';
+			for (const [key, value] of Object.entries(zairyouList)) {
+				options += `<option value="${key}">${value}</option>`;
+			}
+
+			newRow.innerHTML = `
+      <input type="hidden" name="orderList[${rowIndex}].orderId" value="0" />
+      <td>
+        <select name="orderList[${rowIndex}].zairyouId" class="form-select">
+          ${options}
+        </select>
+      </td>
+      <td><input type="number" class="form-control" name="orderList[${rowIndex}].orderAmount" /></td>
+      <td></td>
+    `;
+			tbody.appendChild(newRow);
+			rowIndex++;
+		}
+	</script>
+
+</body>
+
+</html>
